@@ -43,7 +43,7 @@
                   end
     end,
   Pool = cuttlefish:conf_get("backend.mysql.pool_size", Conf),
-  Username = cuttlefish:conf_get("backend.mysql.username", Conf),
+  Username = cuttlefish:conf_get("backend.mysql.user", Conf),
   Passwd = cuttlefish:conf_get("backend.mysql.password", Conf),
   DB = cuttlefish:conf_get("backend.mysql.database", Conf),
   Timeout = case cuttlefish:conf_get("backend.mysql.query_timeout", Conf, "") of
