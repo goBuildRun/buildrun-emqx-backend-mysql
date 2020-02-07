@@ -22,8 +22,8 @@
 -define(CLIENT_CONNECTED_SQL,
     <<"insert into mqtt_client(clientid, state, "
                    "node, online_at, offline_at) values(?, "
-                   "?, ?, now(), null) on duplicate key "
-                   "update state = ?, node = ?, online_at "
+                   "null, null, now(), null) on duplicate key "
+                   "update state = null, node = null, online_at "
                    "= now(), offline_at = null">>).
 -define(CLIENT_DISCONNECTED_SQL,
                  <<"update mqtt_client set state = ?, offline_at "
@@ -68,7 +68,7 @@ load(Env) ->
 %%--------------------------------------------------------------------
 
 on_client_connected(ClientInfo = #{clientid := ClientId}, ConnInfo, _Env) ->
-    buildrun_emqx_backend_mysql_cli:query(?CLIENT_CONNECTED_SQL, [binary_to_list(ClientId),null,null,null,null]),
+    buildrun_emqx_backend_mysql_cli:query(?CLIENT_CONNECTED_SQL, [binary_to_list(ClientId)]),
     io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
             [ClientId, ClientInfo, ConnInfo]).
         
