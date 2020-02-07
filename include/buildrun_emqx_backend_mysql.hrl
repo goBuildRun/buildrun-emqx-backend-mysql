@@ -1,0 +1,1 @@
+-define(APP, buildrun_emqx_backend_mysql).

@@ -1,0 +1,65 @@
+%%-*- mode: erlang -*-
+%% buildrun_emqx_backend_mysql config mapping
+
+
+{mapping, "backend.mysql.server", "buildrun_emqx_backend_mysql.server", [
+  {default, {"127.0.0.1", 3306}},
+  {datatype, [integer, ip, string]}
+]}.
+
+{mapping, "backend.mysql.pool_size", "buildrun_emqx_backend_mysql.server", [
+  {default, 8},
+  {datatype, integer}
+]}.
+
+{mapping, "backend.mysql.user", "buildrun_emqx_backend_mysql.server", [
+  {default, ""},
+  {datatype, string},
+  hidden
+]}.
+
+{mapping, "backend.mysql.password", "buildrun_emqx_backend_mysql.server", [
+  {default, ""},
+  {datatype, string}
+]}.
+
+{mapping, "backend.mysql.database", "buildrun_emqx_backend_mysql.server", [
+  {default, ""},
+  {datatype, string}
+]}.
+
+
+{translation, "buildrun_emqx_backend_mysql.server", fun(Conf) ->
+  {MyHost, MyPort} =
+  case cuttlefish:conf_get("backend.mysql.server", Conf) of
+    {Ip, Port} -> {Ip, Port};
+    S          -> case string:tokens(S, ":") of
+                    [Domain]       -> {Domain, 3306};
+                    [Domain, Port] -> {Domain, list_to_integer(Port)}
+                  end
+    end,
+  Pool = cuttlefish:conf_get("backend.mysql.pool_size", Conf),
+  Username = cuttlefish:conf_get("backend.mysql.username", Conf),
+  Passwd = cuttlefish:conf_get("backend.mysql.password", Conf),
+  DB = cuttlefish:conf_get("backend.mysql.database", Conf),
+  Timeout = case cuttlefish:conf_get("backend.mysql.query_timeout", Conf, "") of
+                "" -> infinity;
+                Duration ->
+                    case cuttlefish_duration:parse(Duration, ms) of
+                      {error, Reason} -> error(Reason);
+                      Ms when is_integer(Ms) -> Ms
+                  end
+            end,
+  [{pool_size, Pool},
+   {auto_reconnect, 1},
+   {host, MyHost},
+   {port, MyPort},
+   {user, Username},
+   {password, Passwd},
+   {database, DB},
+   {encoding, utf8},
+   {query_timeout, Timeout},
+   {keep_alive, true}]
+end}.
+
+
