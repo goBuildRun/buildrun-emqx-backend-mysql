@@ -14,8 +14,7 @@
 
 {mapping, "backend.mysql.user", "buildrun_emqx_backend_mysql.server", [
   {default, ""},
-  {datatype, string},
-  hidden
+  {datatype, string}
 ]}.
 
 {mapping, "backend.mysql.password", "buildrun_emqx_backend_mysql.server", [
