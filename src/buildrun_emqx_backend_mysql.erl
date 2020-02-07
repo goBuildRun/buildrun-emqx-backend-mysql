@@ -68,7 +68,7 @@ load(Env) ->
 %%--------------------------------------------------------------------
 
 on_client_connected(ClientInfo = #{clientid := ClientId}, ConnInfo, _Env) ->
-    buildrun_emqx_backend_mysql_cli.query(?CLIENT_CONNECTED_SQL, [binary_to_list(ClientId),null,binary_to_list(From),null,binary_to_list(From)]),
+    buildrun_emqx_backend_mysql_cli:query(?CLIENT_CONNECTED_SQL, [binary_to_list(ClientId),null,binary_to_list(From),null,binary_to_list(From)]),
     io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
             [ClientId, ClientInfo, ConnInfo]).
         
