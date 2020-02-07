@@ -27,6 +27,11 @@
   {datatype, string}
 ]}.
 
+{mapping, "backend.mysql.query_timeout", "buildrun_emqx_backend_mysql.server", [
+  {default, ""},
+  {datatype, string}
+]}.
+
 
 {translation, "buildrun_emqx_backend_mysql.server", fun(Conf) ->
   {MyHost, MyPort} =
