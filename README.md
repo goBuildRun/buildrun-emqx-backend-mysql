@@ -15,7 +15,7 @@ emqx 客户端连接状态和消息持久化到MySQL 插件
 
 ```erl
 {deps,
-   [ {buildrun_emqx_backend_mysql, {git, "https://github.com/goBuildRun/emqx-backend-mysql.git", {branch, "master"}}}
+   [ {buildrun_emqx_backend_mysql, {git, "https://github.com/goBuildRun/buildrun-emqx-backend-mysql.git", {branch, "master"}}}
    , ....
    ....
    ]
