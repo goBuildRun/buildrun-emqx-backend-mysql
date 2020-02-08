@@ -36,5 +36,5 @@ init([Pools]) ->
 
 pool_spec(Pool, Env) ->
     ecpool:pool_spec({buildrun_emqx_backend_mysql, Pool},
-                     emqx_backend_mysql:pool_name(Pool),
+                     buildrun_emqx_backend_mysql:pool_name(Pool),
                      buildrun_emqx_backend_mysql_cli, Env).

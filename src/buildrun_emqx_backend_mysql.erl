@@ -43,6 +43,8 @@
                    "FROM_UNIXTIME(?)">>).             
 
 
+-export([pool_name/1]).
+
 -export([ register_metrics/0, 
           load/1
         , unload/0
@@ -58,6 +60,10 @@
 -export([ on_message_publish/2
         ]).
 
+
+pool_name(Pool) ->
+    list_to_atom(lists:concat([buildrun_emqx_backend_mysql, '_',
+                               Pool])).
 
 register_metrics() ->
     [emqx_metrics:new(MetricName)
