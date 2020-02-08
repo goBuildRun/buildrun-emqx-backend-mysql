@@ -25,6 +25,7 @@
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
-init([]) ->
-    {ok, { {one_for_all, 0, 1}, []} }.
-
+init([])->
+	{ok, Server} = application:get_env(?APP, server),
+    PoolSpec = ecpool:pool_spec(?APP, ?APP, buildrun_emqx_backend_mysql_cli, Server),
+    {ok, {{one_for_one, 10, 100}, [PoolSpec]}}.

@@ -26,7 +26,6 @@
 
 start(_StartType, _StartArgs) ->
     {ok, Sup} = buildrun_emqx_backend_mysql_sup:start_link(),
-    buildrun_emqx_backend_mysql_cfg:register(),
     buildrun_emqx_backend_mysql:load(application:get_all_env()),
     {ok, Sup}.
 
