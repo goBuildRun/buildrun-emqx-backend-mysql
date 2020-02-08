@@ -22,8 +22,8 @@
 -define(CLIENT_CONNECTED_SQL,
     <<"insert into mqtt_client(clientid, state, "
                    "node, online_at, offline_at) values(?, "
-                   "null, null, now(), null) on duplicate key "
-                   "update state = null, node = null, online_at "
+                   "?, ?, now(), null) on duplicate key "
+                   "update state = null, node = ?, online_at "
                    "= now(), offline_at = null">>).
 -define(CLIENT_DISCONNECTED_SQL,
                  <<"update mqtt_client set state = ?, offline_at "
@@ -43,7 +43,8 @@
                    "FROM_UNIXTIME(?)">>).             
 
 
--export([ load/1
+-export([ register_metrics/0, 
+          load/1
         , unload/0
         ]).
 
@@ -57,6 +58,14 @@
 -export([ on_message_publish/2
         ]).
 
+
+register_metrics() ->
+    [emqx_metrics:new(MetricName)
+     || MetricName
+            <- ['buildrun.backend.mysql.client_connected',
+                'buildrun.backend.mysql.client_disconnected',
+                'buildrun.backend.mysql.message_publish']].
+
 %% Called when the plugin application start
 load(Env) ->
     emqx:hook('client.connected',    {?MODULE, on_client_connected, [Env]}),
@@ -67,15 +76,20 @@ load(Env) ->
 %% Client Lifecircle Hooks
 %%--------------------------------------------------------------------
 
-on_client_connected(ClientInfo = #{clientid := ClientId}, ConnInfo, _Env) ->
-    buildrun_emqx_backend_mysql_cli:query(?CLIENT_CONNECTED_SQL, [binary_to_list(ClientId)]),
-    io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
-            [ClientId, ClientInfo, ConnInfo]).
-        
+on_client_connected(ConnInfo = #{clientid := ClientId, username := Username, peername := {Peerhost, _}}, ConnInfo, _Env) ->
+    emqx_metrics:inc('buildrun.backend.mysql.client_connected'),
+    buildrun_emqx_backend_mysql_cli:query(?CLIENT_CONNECTED_SQL, [binary_to_list(ClientId),"online",binary_to_list(Peerhost),binary_to_list(Peerhost)]),
+    io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n", [ClientId, ClientInfo, ConnInfo]),
+    ok;
+on_client_connected(#{}, _ConnInfo, _Env) ->
+    ok.
 
 on_client_disconnected(ClientInfo = #{clientid := ClientId}, ReasonCode, ConnInfo, _Env) ->
+    emqx_metrics:inc('buildrun.backend.mysql.client_disconnected'),
+    buildrun_emqx_backend_mysql_cli:query(?CLIENT_DISCONNECTED_SQL, ["offline",binary_to_list(ClientId)]),
     io:format("Client(~s) disconnected due to ~p, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
               [ClientId, ReasonCode, ClientInfo, ConnInfo]).
+
 
 %%--------------------------------------------------------------------
 %% Message PubSub Hooks
@@ -86,6 +100,8 @@ on_message_publish(Message = #message{topic = <<"$SYS/", _/binary>>}, _Env) ->
     {ok, Message};
 
 on_message_publish(Message, _Env) ->
+    #message{id = Id, from = From, topic = Topic, qos = Qos, retain = Retain, payload = Payload,ts = Ts } = Message,
+    buildrun_emqx_backend_mysql_cli:query(?MESSAGE_PUBLISH_SQL, [Id,From,Topic,Qos,Retain,Payload,Ts]),
     io:format("Publish ~s~n", [emqx_message:format(Message)]),
     {ok, Message}.
 
