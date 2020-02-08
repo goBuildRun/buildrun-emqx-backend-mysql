@@ -84,7 +84,7 @@ on_client_connected(ClientInfo = #{clientid := ClientId, peerhost := Peerhost}, 
 
 on_client_disconnected(ClientInfo = #{clientid := ClientId}, ReasonCode, ConnInfo, _Env) ->
     %%emqx_metrics:inc('buildrun.backend.mysql.client_disconnected'),
-    buildrun_emqx_backend_mysql_cli:query(?CLIENT_DISCONNECTED_SQL, ["offline",binary_to_list(ClientId)]),
+    buildrun_emqx_backend_mysql_cli:query(?CLIENT_DISCONNECTED_SQL, [null,binary_to_list(ClientId)]),
     io:format("Client(~s) disconnected due to ~p, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
               [ClientId, ReasonCode, ClientInfo, ConnInfo]),
     ok.
