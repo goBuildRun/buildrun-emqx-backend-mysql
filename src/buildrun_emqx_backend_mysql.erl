@@ -79,8 +79,7 @@ load(Env) ->
 on_client_connected(ClientInfo = #{clientid := ClientId, peername := {Peerhost, _}}, ConnInfo, _Env) ->
     emqx_metrics:inc('buildrun.backend.mysql.client_connected'),
     buildrun_emqx_backend_mysql_cli:query(?CLIENT_CONNECTED_SQL, [binary_to_list(ClientId),"online",iolist_to_binary(ntoa(Peerhost)),iolist_to_binary(ntoa(Peerhost))]),
-    io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n", [ClientId, ClientInfo, ConnInfo]),
-    ok;
+    io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n", [ClientId, ClientInfo, ConnInfo]).
 
 on_client_disconnected(ClientInfo = #{clientid := ClientId}, ReasonCode, ConnInfo, _Env) ->
     emqx_metrics:inc('buildrun.backend.mysql.client_disconnected'),
