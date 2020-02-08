@@ -25,9 +25,7 @@
         ]).
 
 start(_Type, _Args) ->
-	Pools = application:get_env(buildrun_emqx_backend_mysql, server,
-                                []),
-    {ok, Sup} = buildrun_emqx_backend_mysql_sup:start_link(Pools),
+    {ok, Sup} = buildrun_emqx_backend_mysql_sup:start_link(),
     buildrun_emqx_backend_mysql:register_metrics(),
     buildrun_emqx_backend_mysql:load(application:get_all_env()),
     {ok, Sup}.

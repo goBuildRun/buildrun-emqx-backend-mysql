@@ -21,20 +21,15 @@
 -behaviour(supervisor).
 
 
--export([start_link/1]).
+-export([start_link/0]).
 
--export([init/1]).
+-export([init/0]).
 
-start_link(Pools) ->
-    supervisor:start_link({local, buildrun_emqx_backend_mysql_sup}, 
-    						buildrun_emqx_backend_mysql_sup, [Pools]).
 
-init([Pools]) ->
-    {ok,
-     {{one_for_one, 10, 100},
-      [pool_spec(Pool, Env) || {Pool, Env} <- Pools]}}.
+start_link()->
+	supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
-pool_spec(Pool, Env) ->
-    ecpool:pool_spec({buildrun_emqx_backend_mysql, Pool},
-                     buildrun_emqx_backend_mysql:pool_name(Pool),
-                     buildrun_emqx_backend_mysql_cli, Env).
+init([])->
+	{ok, Server} = application:get_env(?APP, server),
+    PoolSpec = ecpool:pool_spec(?APP, ?APP, buildrun_emqx_backend_mysql_cli, Server),
+    {ok, {{one_for_one, 10, 100}, [PoolSpec]}}.
