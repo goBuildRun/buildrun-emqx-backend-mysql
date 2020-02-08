@@ -113,3 +113,8 @@ unload() ->
     emqx:unhook('message.publish',     {?MODULE, on_message_publish}).
 
 
+ntoa({0,0,0,0,0,16#ffff,AB,CD}) ->
+    inet_parse:ntoa({AB bsr 8, AB rem 256, CD bsr 8, CD rem 256});
+ntoa(IP) ->
+    inet_parse:ntoa(IP).
+    
