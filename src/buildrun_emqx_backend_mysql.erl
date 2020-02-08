@@ -78,7 +78,7 @@ load(Env) ->
 
 on_client_connected(ClientInfo = #{clientid := ClientId, peerhost := Peerhost}, ConnInfo, _Env) ->
     %%emqx_metrics:inc('buildrun.backend.mysql.client_connected'),
-    buildrun_emqx_backend_mysql_cli:query(?CLIENT_CONNECTED_SQL, [binary_to_list(ClientId),"online",peerhost,peerhost]),
+    buildrun_emqx_backend_mysql_cli:query(?CLIENT_CONNECTED_SQL, [binary_to_list(ClientId),"online",null,null]),
     io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n, Peerhost:~n~p~n", [ClientId, ClientInfo, ConnInfo, Peerhost]),
     ok.
 
@@ -100,7 +100,7 @@ on_message_publish(Message = #message{topic = <<"$SYS/", _/binary>>}, _Env) ->
 
 on_message_publish(#message{flags = #{retain := true}} = Message, _Env) ->
     #message{id = Id, from = From, topic = Topic, qos = Qos, flags = Retain, payload = Payload } = Message,
-    buildrun_emqx_backend_mysql_cli:query(?MESSAGE_PUBLISH_SQL, [emqx_guid:to_hexstr(Id),binary_to_list(From),binary_to_list(Topic),binary_to_integer(Qos),null,binary_to_list(Payload),timestamp()]),
+    buildrun_emqx_backend_mysql_cli:query(?MESSAGE_PUBLISH_SQL, [emqx_guid:to_hexstr(Id),binary_to_list(From),binary_to_list(Topic),null,null,binary_to_list(Payload),timestamp()]),
     io:format("Publish ~s~n", [emqx_message:format(Message)]),
     {ok, Message}.
 
@@ -114,7 +114,7 @@ unload() ->
 timestamp() ->
   {A,B,_C} = os:timestamp(),
   A*1000000+B.
-  
+
 ntoa({0,0,0,0,0,16#ffff,AB,CD}) ->
     inet_parse:ntoa({AB bsr 8, AB rem 256, CD bsr 8, CD rem 256});
 ntoa(IP) ->
