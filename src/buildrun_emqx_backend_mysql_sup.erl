@@ -16,7 +16,10 @@
 
 -module(buildrun_emqx_backend_mysql_sup).
 
+-include("buildrun_emqx_backend_mysql.hrl").
+
 -behaviour(supervisor).
+
 
 -export([start_link/0]).
 
