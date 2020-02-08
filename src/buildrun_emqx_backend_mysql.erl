@@ -78,15 +78,13 @@ load(Env) ->
 
 on_client_connected(ClientInfo = #{clientid := ClientId, peername := {Peerhost, _}}, ConnInfo, _Env) ->
     emqx_metrics:inc('buildrun.backend.mysql.client_connected'),
-    buildrun_emqx_backend_mysql_cli:query(?CLIENT_CONNECTED_SQL, [binary_to_list(ClientId),binary_to_list(online),iolist_to_binary(ntoa(Peerhost)),iolist_to_binary(ntoa(Peerhost))]),
+    buildrun_emqx_backend_mysql_cli:query(?CLIENT_CONNECTED_SQL, [binary_to_list(ClientId),"online",iolist_to_binary(ntoa(Peerhost)),iolist_to_binary(ntoa(Peerhost))]),
     io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n", [ClientId, ClientInfo, ConnInfo]),
     ok;
-on_client_connected(#{}, _ConnInfo, _Env) ->
-    ok.
 
 on_client_disconnected(ClientInfo = #{clientid := ClientId}, ReasonCode, ConnInfo, _Env) ->
     emqx_metrics:inc('buildrun.backend.mysql.client_disconnected'),
-    buildrun_emqx_backend_mysql_cli:query(?CLIENT_DISCONNECTED_SQL, [binary_to_list(offline),binary_to_list(ClientId)]),
+    buildrun_emqx_backend_mysql_cli:query(?CLIENT_DISCONNECTED_SQL, ["offline",binary_to_list(ClientId)]),
     io:format("Client(~s) disconnected due to ~p, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
               [ClientId, ReasonCode, ClientInfo, ConnInfo]).
 
@@ -117,4 +115,3 @@ ntoa({0,0,0,0,0,16#ffff,AB,CD}) ->
     inet_parse:ntoa({AB bsr 8, AB rem 256, CD bsr 8, CD rem 256});
 ntoa(IP) ->
     inet_parse:ntoa(IP).
-    
