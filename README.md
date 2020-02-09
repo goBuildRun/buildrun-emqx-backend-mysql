@@ -92,11 +92,11 @@ eg：
 
 ```json
 {
-  "topic": "test_topic",
-  "payload": "hello",
+  "topic": "buildruntopic",
+  "payload": "hello,Buidrun",
   "qos": 1,
   "retain": true,
-  "client_id": "mqttjs_ab9069449e"
+  "client_id": "mqttjs_8b3b4182ae"
 }
 ```
 

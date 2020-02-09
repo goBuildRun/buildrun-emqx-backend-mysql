@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright (c) 2020 EMQ Technologies Co., Ltd. All Rights Reserved.
+%% Copyright (c) 2020 Buildrun Technologies Co., Ltd. All Rights Reserved.
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
@@ -81,8 +81,7 @@ on_client_connected(ClientInfo = #{clientid := ClientId, peerhost := Peerhost}, 
 
 on_client_disconnected(ClientInfo = #{clientid := ClientId}, ReasonCode, ConnInfo, _Env) ->
     buildrun_emqx_backend_mysql_cli:query(?CLIENT_DISCONNECTED_SQL, [null,binary_to_list(ClientId)]),
-    %%io:format("Client(~s) disconnected due to ~p, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
-              [ClientId, ReasonCode, ClientInfo, ConnInfo]),
+    %%io:format("Client(~s) disconnected due to ~p, ClientInfo:~n~p~n, ConnInfo:~n~p~n",[ClientId, ReasonCode, ClientInfo, ConnInfo]),
     ok.
 
 
