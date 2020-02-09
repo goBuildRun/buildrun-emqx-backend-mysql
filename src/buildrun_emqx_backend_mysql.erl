@@ -107,7 +107,10 @@ on_message_publish(#message{flags = #{retain := true}} = Message, _Env) ->
     %%buildrun_emqx_backend_mysql_cli:query(?MESSAGE_PUBLISH_SQL, [emqx_guid:to_hexstr(Id),null,null,null,null,null,null]),
     %%buildrun_emqx_backend_mysql_cli:query(?MESSAGE_PUBLISH_SQL, [emqx_guid:to_hexstr(Id),binary_to_list(From),binary_to_list(Topic),null,null,binary_to_list(Payload),timestamp()]),
     io:format("Qos Publish ~s~n", [emqx_message:format(Message)]),
-    {ok, Message}.
+    {ok, Message};
+
+on_message_publish(Message, _State) ->
+  {ok, Message}.
 
 
 %% Called when the plugin application stop
