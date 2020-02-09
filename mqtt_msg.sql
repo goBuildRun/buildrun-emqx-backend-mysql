@@ -5,7 +5,7 @@ CREATE TABLE `mqtt_msg` (
   `topic` varchar(1024) DEFAULT NULL,
   `sender` varchar(1024) DEFAULT NULL,
   `node` varchar(60) DEFAULT NULL,
-  `qos` int(11) NOT NULL DEFAULT '0',
+  `qos` int(11)  DEFAULT '0',
   `retain` tinyint(2) DEFAULT NULL,
   `payload` blob,
   `arrived` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
