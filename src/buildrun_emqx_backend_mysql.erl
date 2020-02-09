@@ -107,7 +107,7 @@ on_message_publish(Message = #message{topic = <<"$SYS/", _/binary>>}, _Env) ->
 
 on_message_publish(#message{flags = #{retain := true}} = Message, _Env) ->
     #message{id = Id, from = From, topic = Topic, qos = Qos, payload = Payload } = Message,
-    buildrun_emqx_backend_mysql_cli:query(?MESSAGE_PUBLISH_SQL, [emqx_guid:to_hexstr(Id),quote(From),null,null,null,null,null]),
+    buildrun_emqx_backend_mysql_cli:query(?MESSAGE_PUBLISH_SQL, [emqx_guid:to_hexstr(Id),binary_to_list(From),Topic,null,null,null,null]),
     %%buildrun_emqx_backend_mysql_cli:query(?MESSAGE_PUBLISH_SQL, [emqx_guid:to_hexstr(Id),binary_to_list(From),binary_to_list(Topic),null,null,binary_to_list(Payload),timestamp()]),
     io:format("Qos Publish ~s~n", [emqx_message:format(Message)]),
     {ok, Message};
@@ -122,12 +122,6 @@ unload() ->
     emqx:unhook('client.disconnected', {?MODULE, on_client_disconnected}),
     emqx:unhook('message.publish',     {?MODULE, on_message_publish}).
 
-quote = fun (V) when is_integer(V) -> integer_to_list(V);
-quote = fun (V) when is_atom(V) -> atom_to_binary(V, utf8);
-quote = fun (V) when is_list(V) ->
-    quote(unicode:characters_to_binary(V));
-quote = fun (V) when is_binary(V) ->  binary_to_list(V)
-end.
 
 
 timestamp() ->
