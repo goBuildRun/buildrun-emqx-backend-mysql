@@ -122,21 +122,13 @@ unload() ->
     emqx:unhook('client.disconnected', {?MODULE, on_client_disconnected}),
     emqx:unhook('message.publish',     {?MODULE, on_message_publish}).
 
-quote(V) when is_integer(V) -> integer_to_list(V);
-quote(V) when is_atom(V) -> atom_to_binary(V, utf8);
-quote(V) when is_list(V) ->
+quote = fun (V) when is_integer(V) -> integer_to_list(V);
+quote = fun (V) when is_atom(V) -> atom_to_binary(V, utf8);
+quote = fun (V) when is_list(V) ->
     quote(unicode:characters_to_binary(V));
-quote(V) when is_binary(V) -> quote_str(V).
+quote = fun (V) when is_binary(V) ->  binary_to_list(V)
+end.
 
-quote_str(Bin0) when is_binary(Bin0) ->
-    Bin = case get(backslash_escapes_enabled) of
-            true ->
-                binary:replace(Bin0, <<"\\">>, <<"\\\\">>, [global]);
-            false -> Bin0
-          end,
-    Escaped = binary:replace(Bin, <<"'">>, <<"''">>,
-                             [global]),
-    [$', Escaped, $'].
 
 timestamp() ->
   {A,B,_C} = os:timestamp(),
