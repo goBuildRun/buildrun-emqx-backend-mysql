@@ -102,6 +102,9 @@ on_client_disconnected(ClientInfo = #{clientid := ClientId}, ReasonCode, ConnInf
 on_message_publish(Message = #message{topic = <<"$SYS/", _/binary>>}, _Env) ->
     {ok, Message};
 
+%%on_message_publish(#message{from = emqx_sys} = Message, _Env) ->
+%%  {ok, Message};
+
 on_message_publish(#message{flags = #{retain := true}} = Message, _Env) ->
     #message{id = Id, from = From, topic = Topic, qos = Qos, payload = Payload } = Message,
     %%buildrun_emqx_backend_mysql_cli:query(?MESSAGE_PUBLISH_SQL, [emqx_guid:to_hexstr(Id),null,null,null,null,null,null]),
@@ -109,7 +112,7 @@ on_message_publish(#message{flags = #{retain := true}} = Message, _Env) ->
     io:format("Qos Publish ~s~n", [emqx_message:format(Message)]),
     {ok, Message};
 
-on_message_publish(Message, _State) ->
+on_message_publish(Message, _Env) ->
   {ok, Message}.
 
 
