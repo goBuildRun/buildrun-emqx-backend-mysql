@@ -32,15 +32,7 @@
 -define(MESSAGE_PUBLISH_SQL,
                  <<"insert into mqtt_msg(msgid, sender, "
                    "topic, qos, retain, payload, arrived) "
-                   "values (?, ?, ?, ?, ?, ?, ? );">>).
-
--define(MESSAGE_RETAIN_SQL,
-                 <<"insert into mqtt_retain(topic, msgid, "
-                   "sender, qos, payload, arrived) values "
-                   "(?, ?, ?, ?, ?, FROM_UNIXTIME(?))on "
-                   "duplicate key  update msgid = ?, sender "
-                   "= ?, qos = ?, payload = ?, arrived = "
-                   "FROM_UNIXTIME(?)">>).             
+                   "values (?, ?, ?, ?, ?, ?, ? );">>).         
 
 
 -export([pool_name/1]).
@@ -84,12 +76,12 @@ load(Env) ->
 
 on_client_connected(ClientInfo = #{clientid := ClientId, peerhost := Peerhost}, ConnInfo, _Env) ->
     buildrun_emqx_backend_mysql_cli:query(?CLIENT_CONNECTED_SQL, [binary_to_list(ClientId),null,null,null]),
-    io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n, Peerhost:~n~p~n", [ClientId, ClientInfo, ConnInfo, Peerhost]),
+    %%io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n, Peerhost:~n~p~n", [ClientId, ClientInfo, ConnInfo, Peerhost]),
     ok.
 
 on_client_disconnected(ClientInfo = #{clientid := ClientId}, ReasonCode, ConnInfo, _Env) ->
     buildrun_emqx_backend_mysql_cli:query(?CLIENT_DISCONNECTED_SQL, [null,binary_to_list(ClientId)]),
-    io:format("Client(~s) disconnected due to ~p, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
+    %%io:format("Client(~s) disconnected due to ~p, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
               [ClientId, ReasonCode, ClientInfo, ConnInfo]),
     ok.
 
@@ -102,14 +94,10 @@ on_client_disconnected(ClientInfo = #{clientid := ClientId}, ReasonCode, ConnInf
 on_message_publish(Message = #message{topic = <<"$SYS/", _/binary>>}, _Env) ->
     {ok, Message};
 
-%%on_message_publish(#message{from = emqx_sys} = Message, _Env) ->
-%%  {ok, Message};
-
 on_message_publish(#message{flags = #{retain := true}} = Message, _Env) ->
     #message{id = Id, from = From, topic = Topic, qos = Qos, flags = Retain, payload = Payload } = Message,
     buildrun_emqx_backend_mysql_cli:query(?MESSAGE_PUBLISH_SQL, [emqx_guid:to_hexstr(Id),binary_to_list(From),Topic,integer_to_list(Qos),null,binary_to_list(Payload),null]),
-    %%buildrun_emqx_backend_mysql_cli:query(?MESSAGE_PUBLISH_SQL, [emqx_guid:to_hexstr(Id),binary_to_list(From),binary_to_list(Topic),null,null,binary_to_list(Payload),timestamp()]),
-    io:format("Qos Publish ~s~n", [emqx_message:format(Message)]),
+    %%io:format("on_message_publish ~s~n", [emqx_message:format(Message)]),
     {ok, Message};
 
 on_message_publish(Message, _Env) ->
@@ -128,7 +116,3 @@ timestamp() ->
   {A,B,_C} = os:timestamp(),
   A*1000000+B.
 
-ntoa({0,0,0,0,0,16#ffff,AB,CD}) ->
-    inet_parse:ntoa({AB bsr 8, AB rem 256, CD bsr 8, CD rem 256});
-ntoa(IP) ->
-    inet_parse:ntoa(IP).
