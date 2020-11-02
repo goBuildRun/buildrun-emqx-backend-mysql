@@ -1,0 +1,88 @@
+%%-*- mode: erlang -*-
+%% emqx_backend_mysql config mapping
+
+{mapping, "backend.mysql.$name.server", "emqx_backend_mysql.pools", [
+  {default, {"127.0.0.1", 3306}},
+  {datatype, [integer, ip, string]}
+]}.
+
+{mapping, "backend.mysql.$name.pool_size", "emqx_backend_mysql.pools", [
+  {default, 8},
+  {datatype, integer}
+]}.
+
+{mapping, "backend.mysql.$name.user", "emqx_backend_mysql.pools", [
+  {default, ""},
+  {datatype, string},
+  hidden
+]}.
+
+{mapping, "backend.mysql.$name.password", "emqx_backend_mysql.pools", [
+  {default, ""},
+  {datatype, string}
+]}.
+
+{mapping, "backend.mysql.$name.database", "emqx_backend_mysql.pools", [
+  {default, ""},
+  {datatype, string}
+]}.
+
+{translation, "emqx_backend_mysql.pools", fun(Conf) ->
+  Vars = cuttlefish_variable:fuzzy_matches(["backend", "mysql", "$name", "server"], Conf),
+  Key = fun(Name, Attr) -> string:join(["backend.mysql", Name, Attr], ".") end,
+  lists:map(fun({_, Name}) ->
+    {MyHost, MyPort} =
+      case cuttlefish:conf_get(Key(Name, "server"), Conf) of
+        {Ip, Port} -> {Ip, Port};
+        S          -> case string:tokens(S, ":") of
+                        [Domain]       -> {Domain, 3306};
+                        [Domain, Port] -> {Domain, list_to_integer(Port)}
+                      end
+        end,
+    {list_to_atom(Name), [{host, MyHost}, {port, MyPort},
+                          {pool_size, cuttlefish:conf_get(Key(Name, "pool_size"), Conf)},
+                          {user, cuttlefish:conf_get(Key(Name, "user"), Conf)},
+                          {password, cuttlefish:conf_get(Key(Name, "password"), Conf)},
+                          {database, cuttlefish:conf_get(Key(Name, "database"), Conf)},
+                          {auto_reconnect, 1},
+                          {encoding, utf8},
+                          {keep_alive, true}]}
+  end, Vars)
+end}.
+
+{mapping, "backend.mysql.hook.client.connected.$name", "emqx_backend_mysql.hooks", [
+  {datatype, string}
+]}.
+
+{mapping, "backend.mysql.hook.client.disconnected.$name", "emqx_backend_mysql.hooks", [
+  {datatype, string}
+]}.
+
+{mapping, "backend.mysql.hook.session.subscribed.$name", "emqx_backend_mysql.hooks", [
+  {datatype, string}
+]}.
+
+{mapping, "backend.mysql.hook.session.unsubscribed.$name", "emqx_backend_mysql.hooks", [
+  {datatype, string}
+]}.
+
+{mapping, "backend.mysql.hook.message.publish.$name", "emqx_backend_mysql.hooks", [
+  {datatype, string}
+]}.
+
+{mapping, "backend.mysql.hook.message.acked.$name", "emqx_backend_mysql.hooks", [
+  {datatype, string}
+]}.
+
+{mapping, "backend.mysql.hook.message.delivered.$name", "emqx_backend_mysql.hooks", [
+  {datatype, string}
+]}.
+
+
+{translation, "emqx_backend_mysql.hooks", fun(Conf) ->
+  Hooks = cuttlefish_variable:filter_by_prefix("backend.mysql.hook", Conf),
+  lists:map(
+    fun({[_, _, _,Name1,Name2, _], Val}) -> 
+    {lists:concat([Name1,".",Name2]), list_to_binary(Val)}
+  end, Hooks)
+end}.

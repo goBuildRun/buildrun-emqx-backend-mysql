@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright (c) 2020 Buildrun Technologies Co., Ltd. All Rights Reserved.
+%% Copyright (c) 2020 EMQ Technologies Co., Ltd. All Rights Reserved.
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
@@ -14,17 +14,10 @@
 %% limitations under the License.
 %%--------------------------------------------------------------------
 
--module(buildrun_emqx_backend_mysql_cli).
+-module(emqx_backend_mysql_SUITE).
 
--include("buildrun_emqx_backend_mysql.hrl").
+-compile(export_all).
 
--behaviour(ecpool_worker).
+all() -> [].
 
--export([connect/1, query/2]).
-
-connect(Options) ->
-	mysql:start_link(Options).
-
-query(Sql, Params) ->
-	ecpool:with_client(?APP, fun(C) -> mysql:query(C, Sql, Params) end).
-
+groups() -> [].

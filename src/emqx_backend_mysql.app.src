@@ -1,0 +1,14 @@
+{application, emqx_backend_mysql,
+ [{description, "EMQ X Backend Mysql"},
+  {vsn, "git"},
+  {modules, []},
+  {registered, [emqx_backend_mysql_sup]},
+  {applications, [kernel,stdlib]},
+  {mod, {emqx_backend_mysql_app,[]}},
+  {env, []},
+  {licenses, ["Apache-2.0"]},
+  {maintainers, ["EMQ X Team <contact@emqx.io>"]},
+  {links, [{"Homepage", "https://emqx.io/"},
+           {"Github", "https://github.com/emqx/emqx-plugin-template"}
+          ]}
+ ]}.
