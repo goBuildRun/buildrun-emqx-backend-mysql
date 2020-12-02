@@ -33,11 +33,3 @@ curl -OL https://s3.amazonaws.com/rebar3/rebar3
 
 <a id="orgeb79a2a"></a>
 
-## emacs 编辑器配置
-
-需要安装 erlang 包，提供 erlang-mode 再安装 erlang-lsp
-
-``` bash
-git clone https://github.com/erlang-ls/erlang_ls.git
-cd erlang_ls && make
-```
